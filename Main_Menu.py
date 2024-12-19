@@ -18,18 +18,18 @@ def main_menu():
 
         if Vehicle_Type == "1":
             Vehicle_Price = 5
+            with open("parceldetails.txt", "a") as file:
+                file.write(f"{Vehicle_Type},{Parcel_weight},{Pick_Up_State},{Drop_Off_State},0,{Vehicle_Price},0\n")
             Route(main_menu)
         elif Vehicle_Type == "2":
             Vehicle_Price = 8
+            with open("parceldetails.txt", "a") as file:
+                file.write(f"{Vehicle_Type},{Parcel_weight},{Pick_Up_State},{Drop_Off_State},0,{Vehicle_Price},0\n")
             CarRoute(main_menu)
         else:
             Vehicle_Price == 18
-            
-
-        with open("parceldetails.txt", "a") as file:
-            file.write(f"{Vehicle_Type},{Parcel_weight},{Pick_Up_State},{Drop_Off_State},0,{Vehicle_Price},0\n")
-            
-        
+            with open("parceldetails.txt", "a") as file:
+                file.write(f"{Vehicle_Type},{Parcel_weight},{Pick_Up_State},{Drop_Off_State},0,{Vehicle_Price},0\n")
 
     elif Decision == "2":
         print("Feature not implemented yet!")
