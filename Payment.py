@@ -34,6 +34,11 @@ def print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id):
     print(f"Total Price   : RM{float(Total_Price):.2f}")
     print("===========================")
 
+# Function to record order ID in parceldetails.txt
+def record_order_id(order_id, file_path="parceldetails.txt"):
+    with open(file_path, "a") as file:
+        file.write(order_id + "\n")
+
 # Payment function
 def payment(main_menu_callback):
     order_id = generate_order_id()
@@ -48,10 +53,10 @@ def payment(main_menu_callback):
 
     confirm = input("Do you want to proceed with payment? (yes/no): ").lower()
     if confirm == "yes":
+        # Record the generated Order ID
+        record_order_id(order_id)
         process_payment()
         main_menu_callback()
     else:
         print("Order canceled. Returning to main menu...")
         main_menu_callback()
-
-
