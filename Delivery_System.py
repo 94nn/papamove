@@ -10,7 +10,7 @@ def login():
     print("1. Create account")
     print("2. Login")
     print("3. Exit")    
-    Decision = input("Enter your choice: ")
+    Decision = input("Enter your choice (1/2/3): ")
     return Decision
 
 # Create new account
@@ -19,7 +19,7 @@ def registration():
         print("\n===== CREATE NEW ACCOUNT =====")
         print("1. Register")
         print("2. Back")
-        Decision = input("Enter your choice: ")
+        Decision = input("Enter your choice (1/2): ")
 
         if Decision == "1":
             UserID = input("Enter your user id: ")
@@ -41,11 +41,27 @@ def registration():
 
 # Function to process payment
 def process_payment():
-    print("Processing payment...")
-    print("Payment successful!")
-    print("Thank you for choosing our service!")
-    print("Returning to main menu...")
-    print()
+    print("\n===== SELECT PAYMENT METHOD =====")
+    print("1. Card")
+    print("2. Papawallet")
+    Decision = input("Enter your decision (1/2):")
+
+    if Decision == "1":
+        Card_Number = input("Enter your card number:")
+        cvc = input("Enter the CVC:")
+        Name = input("Enter the cardholder name:")
+        Expired_Date = input("Enter the expired date:")
+        Country = input("Enter your country:")
+        confirm = input("Confirm payment? (Yes/No): ").lower()
+        if confirm == "yes":
+            print("Processing payment...")
+            print("Payment successful!")
+            print("Thank you for choosing our service!")
+            print("Returning to main menu...")
+            main_menu()
+        else:
+            print("Payment canceled. Returning to main menu...")
+            main_menu()
 
 # Function to generate order ID with format "D@@"
 def generate_order_id(file_path="parceldetails.txt"):
@@ -336,7 +352,7 @@ def track_order():
         print("\nOptions:")
         print("1. Track another order")
         print("2. Back to main menu")
-        decision = input("Enter your choice (1 or 2): ")
+        decision = input("Enter your choice (1/2): ")
 
         if decision != "1":
             print("Exiting order tracking.")
@@ -356,8 +372,9 @@ def main_menu():
         print("2. Car")
         print("3. Van")
 
-        Vehicle_Type = input("Select your vehicle type: ")
-        Parcel_weight = input("Enter your parcel weight: ")
+        Vehicle_Type = input("Select your vehicle type (1/2/3): ")
+        Parcel_weight = input("Enter your parcel weight (kg): ")
+        print("1. Johor \n2. Kuala Lumpur \n3. Butterworth \n4. Kedah \n5. Perlis \n6. Kelantan \n7. Terengganu")
         Pick_Up_State = input("Enter your desired pick up state: ")
         Drop_Off_State = input("Enter your desired drop off state: ")
 
