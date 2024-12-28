@@ -41,27 +41,22 @@ def registration():
 
 # Function to process payment
 def process_payment():
-    print("\n===== SELECT PAYMENT METHOD =====")
-    print("1. Card")
-    print("2. Papawallet")
-    Decision = input("Enter your decision (1/2):")
-
-    if Decision == "1":
-        Card_Number = input("Enter your card number:")
-        cvc = input("Enter the CVC:")
-        Name = input("Enter the cardholder name:")
-        Expired_Date = input("Enter the expired date:")
-        Country = input("Enter your country:")
-        confirm = input("Confirm payment? (Yes/No): ").lower()
-        if confirm == "yes":
-            print("Processing payment...")
-            print("Payment successful!")
-            print("Thank you for choosing our service!")
-            print("Returning to main menu...")
-            main_menu()
-        else:
-            print("Payment canceled. Returning to main menu...")
-            main_menu()
+    print("\n===== MAKE PAYMENT =====")
+    Card_Number = input("Enter your card number:")
+    cvc = input("Enter the CVC:")
+    Name = input("Enter the cardholder name:")
+    Expired_Date = input("Enter the expired date:")
+    Country = input("Enter your country:")
+    confirm = input("Confirm payment? (Yes/No): ").lower()
+    if confirm == "yes":
+        print("Processing payment...")
+        print("Payment successful!")
+        print("Thank you for choosing our service!")
+        print("Returning to main menu...")
+        main_menu()
+    else:
+        print("Payment canceled. Returning to main menu...")
+        main_menu()
 
 # Function to generate order ID with format "D@@"
 def generate_order_id(file_path="parceldetails.txt"):
@@ -92,12 +87,16 @@ def generate_order_id(file_path="parceldetails.txt"):
     return order_id, order_number
 
 # Function to print package info
-def print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id):
+def print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip):
     print("\n===== PACKAGE DETAILS =====")
-    print(f"Order ID      : {order_id}")
-    print(f"Vehicle Type  : {Vehicle_Type}")    
-    print(f"Weight (kg)   : {Parcel_Weight}")
-    print(f"Total Price   : RM{float(Total_Price):.2f}")
+    print(f"Order ID       : {order_id}")
+    print(f"Vehicle Type   : {Vehicle_Type}")    
+    print(f"Weight (kg)    : {Parcel_Weight}")
+    print(f"Pick Up State  : {Pick_Up_State}")
+    print(f"Drop Off State : {Drop_Off_State}")
+    print(f"Round Trip     : {Round_Trip}")
+    print(f"Quantity       : {Quantity_Of_Round_Trip}")
+    print(f"Total Price    : RM{float(Total_Price):.2f}")
     print("===========================")
 
 # Function to make payment
@@ -109,8 +108,8 @@ def payment(main_menu_callback):
         if lines:
             last_line = lines[-1]
             parts = [part.strip() for part in last_line.strip().split(",")]
-            order_number, order_id, Vehicle_Type, Parcel_Weight, Pick_Up_State, Drop_Off_State, Round_Trip, Vehicle_Price, Total_Price = parts
-    print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id)
+            order_number, order_id, Vehicle_Type, Parcel_Weight, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip, Vehicle_Price, Total_Price = parts
+    print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip)
 
     confirm = input("Do you want to proceed with payment? (yes/no): ").lower()
     if confirm == "yes":
@@ -182,7 +181,7 @@ def Motor_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, 
         Total_Price = count_price(Price, float(Vehicle_Price), Quantity_Of_Round_Trip, float(Parcel_Weight))
 
     with open("parceldetails.txt", "a") as file:
-        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Vehicle_Price},{Total_Price}\n")
+        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
     
     payment(main_menu_callback)
 
@@ -242,7 +241,7 @@ def Car_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
         Total_Price = count_price(Price, float(Vehicle_Price), Quantity_Of_Round_Trip, float(Parcel_Weight))
 
     with open("parceldetails.txt", "a") as file:
-        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Vehicle_Price},{Total_Price}\n")
+        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
     
     payment(main_menu_callback)
 
@@ -302,7 +301,7 @@ def Van_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
         Total_Price = count_price(Price, float(Vehicle_Price), Quantity_Of_Round_Trip, float(Parcel_Weight))
 
     with open("parceldetails.txt", "a") as file:
-        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Vehicle_Price},{Total_Price}\n")
+        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
     
     payment(main_menu_callback)
     
