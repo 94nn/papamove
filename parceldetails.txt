@@ -1,7 +1,4 @@
-1,D01,3,88,johor,perlis,yes,18,3189.1200000000003
-2,D02,2,50,johor,butterworth,no,8,409.99999999999994
-3,D03,1,30,kuala lumpur,kelantan,no,5,154.5
-4,D04,2,30,penang,perlis,no,8,240.0
-5,D05,1,20,johor,kuala lumpur,no,5,103.0
-6,D06,1,20,johor,butterworth,yes,5,265.0
-7,D07,2,55,kuala lumpur,terengganu,no,8,445.5
+1,D01,2,55,kuala lumpur,perlis,yes,3,8,1119.25
+2,D02,1,20,johor,kuala lumpur,yes,3,5,257.5
+3,D03,2,55,butterworth,kedah,yes,2,8,882.1999999999999
+4,D04,1,15,kelantan,terengganu,no,0,5,75.0
