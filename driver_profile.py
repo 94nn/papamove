@@ -221,9 +221,7 @@ def parcel_hub():
     else:
         print("Invalid input, try again!")
     with open("availability_status_2.txt", "a") as file:
-        file.write(f"{selected_hub}\n")
-        file.write(f"{parcel_status}\n")
-        file.write(f"{datetime.now().strftime('%H:%M')}\n")
+        file.write(f"{selected_hub}, {parcel_status}, {datetime.now().strftime('%H:%M')}\n")
 
 def menu():
     print("Welcome to driver page! How are you today?")
