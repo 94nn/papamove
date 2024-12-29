@@ -1,0 +1,4 @@
+{'vehicle_id': [1], 'maintenance_alerts': ['Oil change and brake check required.'], 'inspection_schedule': ['2024-01-15']}
+{'vehicle_id': [2], 'maintenance_alerts': ['Engine diagnostics needed.'], 'inspection_schedule': ['2024-02-20']}
+{'vehicle_id': [3], 'maintenance_alerts': ['Brake check required.', 'Oil change required.'], 'inspection_schedule': ['2025-01-10', '2025-01-12']}
+{'vehicle_id': [4], 'maintenance_alerts': [], 'inspection_schedule': []}
