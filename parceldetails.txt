@@ -2,3 +2,5 @@
 2,D02,1,20,johor,kuala lumpur,yes,3,5,257.5
 3,D03,2,55,butterworth,kedah,yes,2,8,882.1999999999999
 4,D04,1,15,kelantan,terengganu,no,0,5,75.0
+5,D05,2,56,butterworth,perlis,no,0,8,450.23999999999995
+6,D06,2,45,kuala lumpur,butterworth,no,0,8,364.5
