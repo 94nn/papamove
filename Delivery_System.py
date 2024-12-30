@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 # Create parceldetails.txt if it doesn't exist
 if not os.path.exists("parceldetails.txt"):
@@ -36,8 +37,10 @@ def registration():
             else:
                 print("Fail to register a new account!")
                 return
-        else:
+        elif Decision == "2":
             break
+        else:
+            print("Invalid input, try again!")
 
 # Function to process payment
 def process_payment():
@@ -54,9 +57,11 @@ def process_payment():
         print("Thank you for choosing our service!")
         print("Returning to main menu...")
         main_menu()
-    else:
+    elif confirm == "no":
         print("Payment canceled. Returning to main menu...")
         main_menu()
+    else:
+        print("Invalid input, try again!")
 
 # Function to generate order ID with format "D@@"
 def generate_order_id(file_path="parceldetails.txt"):
@@ -394,6 +399,384 @@ def main_menu():
         track_order()
     else:
         print("Exiting...")
+        process_login()
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#============================ Driver ===============================
+def current_hub():
+    while True:
+        print("1 Johor")
+        print("2 Kuala Lumpur")
+        print("3 Butterworth")
+        print("4 Kedah")
+        print("5 Perlis")
+        print("6 Kelantan")
+        print("7 Terengganu")
+        print("Waiting for task!")
+        Decision = input("Select your drop off address (1/2/3/4/5/6/7/8) (or type exit to exit): ").strip().lower()
+
+        if Decision == "1":
+            return("Johor")
+        elif Decision == "2":
+            return("Kuala Lumpur")
+        elif Decision == "3":
+            return("Butterworth")
+        elif Decision == "4":
+            return("Kedah")
+        elif Decision == "5":
+            return("Perlis")
+        elif Decision == "6":
+            return("Kelantan")
+        elif Decision == "7":
+            return("Terengganu")
+        elif Decision == "8":
+            return("Waiting for task!")
+        elif Decision == "exit":
+            print("Exiting")
+            driver_menu()
+        else:
+            print("Invalid input, try again!")
+
+def parcel_hub():
+    Current_location = current_hub()
+    Parcel_id = input("Enter parcel id: ").strip()
+    updated_lines = []
+    parcel_found = False  # Flag to track if the parcel is found
+
+    with open("package_info.txt", "r") as file:
+        for line in file:
+            parts = [part.strip() for part in line.strip().split(",")]
+            if len(parts) == 4:
+                order_id, Pick_Up_State, Drop_Off_State, Parcel_status = parts
+                if Parcel_id == order_id:
+                    parcel_found = True
+                    
+                    # Check if the drop-off state matches the current hub
+                    if Drop_Off_State.lower() == Current_location.lower():
+                        Parcel_status = "Delivered"
+                        print(f"Parcel {Parcel_id} has been successfully delivered!")
+                        print("Arrival time: ", datetime.now().strftime("%H:%M"))
+                    else:
+                        Parcel_status = "In Transit"
+                        print(f"Parcel {Parcel_id} is still in transit.")
+                        print("Your parcel is currently in ", Current_location)
+                    
+                    # Update the line with the new status
+                    updated_line = f"{order_id},{Pick_Up_State},{Drop_Off_State},{Parcel_status}\n"
+                    updated_lines.append(updated_line)
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+
+    # Check if parcel ID was not found
+    if not parcel_found:
+        print("Invalid parcel ID, try again!")
+
+    # Write back the updated lines
+    with open("package_info.txt", "w") as file:
+        file.writelines(updated_lines)
+
+    # if Current_location == "Johor":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "Kuala Lumpur":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "Butterworth":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "Kedah":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "Perlis":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "Kelantan":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "Terengganu":
+    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
+    #     if parcel_status.lower() == "delivered":
+    #         print("Your parcel is currently in ", selected_hub)
+    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
+    #     else:
+    #         print("You are currently in", selected_hub)
+    # elif selected_hub == "exit":
+    #     print("Exiting")
+    #     exit()
+    # else:
+    #     print("Invalid input, try again!")
+    # with open("availability_status_2.txt", "a") as file:
+    #     file.write(f"{selected_hub}, {parcel_status}, {datetime.now().strftime('%H:%M')}\n")
+
+def maintenance_form():
+    print("\n=================== Please fill up the maintenance claim form to the admin! ===================")
+    # Vehicle_Plate = input("Enter your vehicle plate number: ")
+    UserID = input("Enter your user ID: ")
+    print("1. Proceed\n2. Exit")
+    Decision = input("Enter your decision (1/2):")
+    if Decision == "1":
+        with open("driver_profile.txt","r") as file:
+            lines = file.readlines()
+            if lines:
+                last_line = lines[-1]
+                parts = [part.strip() for part in last_line.strip().split(",")]
+                stored_userID, stored_Contact_info, stored_Address, stored_Driving_license, stored_Vehicle_Type, stored_Vehicle_Plate, stored_Criminal_records, stored_Criminal_records_explanation= parts
+                if UserID == stored_userID:
+                    Service_Type = input("Enter your service type(engine/brake/aircon/others): ")
+                    Repair_Cost = float(input("Enter your repair cost(RM): "))
+                    Maintenance_Date = input("Enter your maintenance date(DD-MM-YYYY): ")
+
+                    print("\n===== Maintenance Claim Form =====")
+                    print("Vehicle Plate: ", stored_Vehicle_Plate)
+                    print("UserID: ", UserID)
+                    print("Vehicle Type: ", stored_Vehicle_Type)
+                    print("Service Type: ", Service_Type)
+                    print("Repair Cost: ", Repair_Cost)
+                    print("Maintenance Date: ", Maintenance_Date)
+                    print("Your maintenance claim form has been submitted to the admin!")
+                    print("Thank you! Have a good day!")  
+
+                else:
+                    print("Invalid user ID, try again!") 
+    elif Decision == "2":
+        driver_menu()
+    else:
+        print("Invalid input, try again!")
+    # return Vehicle_Plate, UserID, Vehicle_Type_Selected, Service_Type, Repair_Cost, Maintenance_Date
+
+def vehicle_status():
+    print("\n==============You are in vehicle status page.==============")
+    while True:
+        Update_vehicle = input("Enter your vehicle status (Good/Bad): ")
+        if Update_vehicle.lower() == "good":
+            print("No need to send for maintenance!")
+            driver_menu()
+        elif Update_vehicle.lower() == "bad": 
+            print("Send for maintenance!")
+            maintenance_form()
+            driver_menu()
+        else:
+            print("Invalid input, try again!")
+
+def Maintenance_monthly():
+    print("\n=================== Welcome to the maintenance monthly check! ===================")
+    UserID = input("Enter your user ID: ")
+    print("1. Proceed\n2. Exit")
+    Decision = input("Enter your decision (1/2):")
+    if Decision == "1":
+        with open("driver_profile.txt","r") as file:
+            lines = file.readlines()
+            if lines:
+                last_line = lines[-1]
+                parts = [part.strip() for part in last_line.strip().split(",")]
+                stored_userID, stored_Contact_info, stored_Address, stored_Driving_license, stored_Vehicle_Type, stored_Vehicle_Plate, stored_Criminal_records, stored_Criminal_records_explanation = parts
+                if UserID == stored_userID:
+                    Maintenance_Date = input("Enter your maintenance date(DD-MM-YYYY): ")
+                    Maintenance_Result = input("Enter your maintenance result (Good/Bad): ")
+                    if Maintenance_Result.lower() == "good":
+                        print("No need to send for service!")
+                    elif Maintenance_Result.lower() == "bad":
+                        print("Send for service!")
+                        maintenance_form()
+                    else:
+                        print("Invalid input, try again!")
+
+                    print("\n========== Updated Maintenance Form ==========")
+                    print("UserID: ", UserID)
+                    print("Vehicle Plate: ", stored_Vehicle_Plate)
+                    print("Vehicle Type: ", stored_Vehicle_Type)
+                    print("Maintenance Date: ", Maintenance_Date)
+                    print("Your maintenance has been updated!")
+                    print("Thank you! Have a good day!")
+                else:
+                    print("Invalid user ID, try again!")
+    elif Decision == "2":
+        driver_menu()
+    else:
+        print("Invalid input, try again!")       
+
+def fuel_management():
+    print("\n=================== Welcome to fuel management page! ===================")
+    # Vehicle_Type_Selected = vehicle_type()
+    UserID = input("Enter your user ID: ")
+    print("1. Proceed\n2. Exit")
+    Decision = input("Enter your decision (1/2):")
+    if Decision == "1":
+        selected_hub = current_hub()
+        fuel_levels = input("Enter your current fuel levels (high/low): ")
+        if fuel_levels.lower() == "low":
+            print("\nSend to refuel!!!")
+            refuel_date = input("Enter your date of refueling (DD-MM-YYYY):")
+            refuel_time = input("Enter the time of refueling (HH:MM):")    
+            refuel_quantity = input("Enter how many litres you refueled:")
+            refuel_cost = input("Enter the refuel amount (RM):")
+            print("\n=================== Fuel Management Record ===================")
+            print("Your refuel date of the vehicle:", refuel_date)
+            print("Your refuel time is at:", refuel_time)
+            print("Your refuel quantity at:", refuel_quantity , "litres")
+            print("Your refuel cost at:RM", refuel_cost)
+            print("Your fuel status has been send to admin! Thank you!")
+            print("Have a great journey ahead!") 
+            print("================================================================")
+        else: 
+            mileage = input("Enter your mileage(km): ")
+            remaining_fuel = input("Enter your remaining fuel levels: ")
+            print("\n=================== Fuel Management Record ===================")
+            print("Your current mileage is at:", mileage, "km")
+            print("Your current fuel levels is at:", remaining_fuel, "litres")
+            print("Your fuel status has been send to admin! Thank you!")
+            print("Have a great journey ahead!")  
+            print("================================================================")
+        driver_menu()
+    elif Decision == "2":
+        driver_menu()
+    else:
+        print("Invalid input, try again!")
+
+def driver_menu():
+    print("\n=================== Welcome to driver page! How are you today? ===================")
+    while True:
+        print("1. Vehicle status")
+        print("2. Maintenance monthly")
+        print("3. Update parcel status")
+        print("4. Fuel Management")
+        print("5. Exit")
+        Decision = input("Which page you want do to go to? (1/2/3/4/5): ").strip().lower()
+
+        if Decision == "1":
+            vehicle_status()
+        elif Decision == "2":
+            Maintenance_monthly()
+        elif Decision == "3":
+            parcel_hub()
+        elif Decision == "4":
+            fuel_management()
+        elif Decision == "5":
+            print("Exiting")
+            process_login()
+        else:
+            print("Invalid input, try again!")
+
+def vehicle_type(UserID, Contact_info, Address, Driving_license, Criminal_records, Criminal_records_explanation):
+    while True:
+        print("\n===== Vehicle Type =====")
+        print("1 Motor")
+        print("2 Car")
+        print("3 Van")
+        Decision = input("Select your vehicle (1/2/3) (or type exit to return to main menu): ").strip().lower()
+
+        if Decision == "1":
+            Vehicle_Type = "Motor"
+            Vehicle_Plate = input("Enter your vehicle plate number: ")
+            with open("driver_profile.txt", "a") as file:
+                file.write(f"{UserID},{Contact_info},{Address},{Driving_license},{Vehicle_Type},{Vehicle_Plate},{Criminal_records},{Criminal_records_explanation}\n")
+            print_driver_profile(UserID, Contact_info, Address, Driving_license, Vehicle_Type, Vehicle_Plate, Criminal_records_explanation)
+            driver_menu()
+        elif Decision == "2":
+            Vehicle_Type = "Car"
+            Vehicle_Plate = input("Enter your vehicle plate number: ")
+            with open("driver_profile.txt", "a") as file:
+                file.write(f"{UserID},{Contact_info},{Address},{Driving_license},{Vehicle_Type},{Vehicle_Plate},{Criminal_records},{Criminal_records_explanation}\n")
+            print_driver_profile(UserID, Contact_info, Address, Driving_license, Vehicle_Type, Vehicle_Plate, Criminal_records_explanation)
+            driver_menu()
+        elif Decision == "3":
+            Vehicle_Type = "Van"
+            Vehicle_Plate = input("Enter your vehicle plate number: ")
+            with open("driver_profile.txt", "a") as file:
+                file.write(f"{UserID},{Contact_info},{Address},{Driving_license},{Vehicle_Type},{Vehicle_Plate},{Criminal_records},{Criminal_records_explanation}\n")
+            print_driver_profile(UserID, Contact_info, Address, Driving_license, Vehicle_Type, Vehicle_Plate, Criminal_records_explanation)
+            driver_menu()
+        elif Decision == "exit":
+            Vehicle_Type = "Nothing"
+            Vehicle_Plate = "Nothing"
+            with open("driver_profile.txt", "a") as file:
+                file.write(f"{UserID},{Contact_info},{Address},{Driving_license},{Vehicle_Type},{Vehicle_Plate},{Criminal_records},{Criminal_records_explanation}\n")
+            print("Exiting")
+            process_login()
+        else:
+            print("Invalid input, try again!")
+
+def collect_driver_info(UserID):
+    Decision = input("Have you entered your driver info? (yes/no):")
+    if Decision.lower() == "no":
+        Contact_info = input("Enter your contact number: ").strip()
+        Address = input("Enter your address: ").strip()
+        Driving_license = input("Enter your driving license number: ").strip()
+        Criminal_records = input("Any criminal records? (Yes/No): ").strip().lower()
+        if Criminal_records == "yes":
+            print("Explain your criminal records: ")
+            Criminal_records_explanation = input("Enter your criminal records explanation: ").strip()
+            print("Your criminal records explanation has been submitted to the admin!")
+        else:
+            Criminal_records = "No"
+            Criminal_records_explanation = "No criminal records! Such a good driver!"
+        # print("\n===== Driver's Profile =====")
+        # print("Contact Information:", Contact_info)
+        # print("Address:", Address)
+        # print("Driving License:", Driving_license)
+        # print("Your criminal records explanation:", Criminal_records_explanation)
+        # print("===========================")
+        # with open("driver_profile.txt", "a") as file:
+        #     file.write(f"{UserID},{Contact_info},{Address},{Driving_license},{Criminal_records},{Criminal_records_explanation}\n")
+            # file.write(f"{Address}\n")
+            # file.write(f"{Driving_license}\n")
+            # file.write(f"{Criminal_records}\n")
+            # file.write(f"{Criminal_records_explanation}\n")
+        # return UserID, Contact_info, Address, Driving_license, Criminal_records, Criminal_records_explanation
+        vehicle_type(UserID, Contact_info, Address, Driving_license, Criminal_records, Criminal_records_explanation)
+    elif Decision.lower() == "yes":
+        driver_menu()
+    else:
+        print("Invalid input, try again!")
+
+def print_driver_profile(UserID, Contact_info, Address, Driving_license, Vehicle_Type, Vehicle_Plate, Criminal_records_explanation):
+    print("\n===== Driver's Profile =====")
+    print("User ID:", UserID)
+    print("Contact Information:", Contact_info)
+    print("Address:", Address)
+    print("Driving License:", Driving_license)
+    print("Vehicle Type:", Vehicle_Type)
+    print("Vehicle Plate:", Vehicle_Plate)
+    print("Your criminal records explanation:", Criminal_records_explanation)
+    print("===========================")
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#============================ Admin ===============================
+# Create package_info.txt for driver
+with open("parceldetails.txt","r") as file:
+    for line in file:
+        parts = [part.strip() for part in line.strip().split(",")]
+        if len(parts) == 10:
+            order_number, order_id, Vehicle_Type, Parcel_Weight, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip, Vehicle_Price, Total_Price = parts
+            Parcel_status = "order sent"
+            with open("package_info.txt","a") as file:
+                file.write(f"{order_id},{Pick_Up_State},{Drop_Off_State},{Parcel_status}\n")
 
 def process_login():
     while True:
@@ -415,7 +798,10 @@ def process_login():
                             if UserID == stored_UserID and Password == stored_Password:
                                 print("Login successful!")
                                 login_successful = True
-                                main_menu()
+                                if stored_User_Type.lower() == "driver":
+                                    collect_driver_info(UserID)
+                                else:
+                                    main_menu()
                                 break
                 
                 if not login_successful:
@@ -424,8 +810,10 @@ def process_login():
                 print("User database not found")
             except ValueError:
                 print("Error reading user database")
-        else:
+        elif Decision == "3":
             break
+        else:
+            print("Invalid input, try again!")
 
 if __name__ == "__main__":
    process_login()
