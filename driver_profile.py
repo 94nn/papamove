@@ -139,7 +139,7 @@ def current_hub():
         print("5 Perlis")
         print("6 Kelantan")
         print("7 Terengganu")
-        print("Waiting for task!")
+        print("8 Waiting for task!")
         Decision = input("Select your drop off address (1/2/3/4/5/6/7/8) (or type exit to exit): ").strip().lower()
 
         if Decision == "1":
