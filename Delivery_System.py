@@ -312,55 +312,62 @@ def Van_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
     
 # Function to track order
 def track_order():
+    try:
+        # Parse parcel details once
+        with open("parceldetails.txt", "r") as parcel_file:
+            parcel_ids = [line.split(',')[1].strip() for line in parcel_file]
+    except FileNotFoundError:
+        print("Error: Parcel details file not found.")
+        return
+
+    try:
+        # Parse package information into a dictionary
+        with open("package_info.txt", "r") as package_file:
+            package_data = {}
+            for line in package_file:
+                parts = line.strip().split(",")
+                if len(parts) == 6:
+                    parcel_id, pick_up_state, drop_off_state, parcel_status, pick_up_time, arrival_time = parts
+                    package_data[parcel_id] = {
+                        "pick_up_state": pick_up_state,
+                        "drop_off_state": drop_off_state,
+                        "status": parcel_status,
+                        "pick_up_time": pick_up_time,
+                        "arrival_time": arrival_time
+                    }
+    except FileNotFoundError:
+        print("Error: Package information file not found.")
+        return
+
     while True:
-        order_id = input("Enter your Order ID: ")
+        order_id = input("Enter your Order ID: ").strip()
 
         # Validate order id
-        try:
-            with open("parceldetails.txt", "r") as parcel_file:
-                 parcel_ids = [line.split(',')[1].strip() for line in parcel_file]
-        except FileNotFoundError:
-            print("Error: Parcel details file not found.")
-            return
-
         if order_id not in parcel_ids:
             print("Pop Up: Invalid Order ID")
             main_menu()
-
-        # Find parcel delivery details of the order id from...txt
-        try:
-            with open("driver_data.txt", "r") as driver_file:
-                orders = {}
-                for line in driver_file:
-                    data = line.strip().split(",")
-                    if len(data) == 4:
-                        orders[data[0]] = {
-                            "status": data[1],
-                            "arrival_time": data[2],
-                            "current_location": data[3]
-                        }
-        except FileNotFoundError:
-            print("Error: Driver data file not found.")
             return
 
-        # If order id found in...txt, check if the parcel has delivered
-        if order_id in orders:
-            order = orders[order_id]
-            if order["status"] == "Delivered":
+        # Check if order_id exists in package_data
+        if order_id in package_data:
+            order = package_data[order_id]
+            if order["status"].lower() == "delivered":
                 print(f"Arrival Time: {order['arrival_time']}, Parcel Delivered")
             else:
-                print(f"Current Location: {order['current_location']}, Parcel in Transit")
+                print(f"Current Status: {order['status']}, Parcel in Transit")
         else:
             print("Order ID exists in parcel details but no tracking information is available yet.")
 
+        # User decision
         print("\nOptions:")
         print("1. Track another order")
         print("2. Back to main menu")
-        decision = input("Enter your choice (1/2): ")
+        decision = input("Enter your choice (1/2): ").strip()
 
         if decision != "1":
             print("Exiting order tracking.")
             main_menu()
+            return
 
 def main_menu():
     print("\n===== MAIN MENU =====")
@@ -437,102 +444,67 @@ def current_hub():
         else:
             print("Invalid input, try again!")
 
+from datetime import datetime
+
+from datetime import datetime
+
 def parcel_hub():
-    Current_location = current_hub()
-    Parcel_id = input("Enter parcel id: ").strip()
+    Current_location = current_hub()  # Ensure this function is defined elsewhere
+
+    Parcel_id = input("Enter parcel ID: ").strip()
     updated_lines = []
     parcel_found = False  # Flag to track if the parcel is found
 
     with open("package_info.txt", "r") as file:
         for line in file:
             parts = [part.strip() for part in line.strip().split(",")]
-            if len(parts) == 4:
-                order_id, Pick_Up_State, Drop_Off_State, Parcel_status = parts
-                if Parcel_id == order_id:
-                    parcel_found = True
-                    
-                    # Check if the drop-off state matches the current hub
-                    if Drop_Off_State.lower() == Current_location.lower():
-                        Parcel_status = "Delivered"
-                        print(f"Parcel {Parcel_id} has been successfully delivered!")
-                        print("Arrival time: ", datetime.now().strftime("%H:%M"))
-                    else:
-                        Parcel_status = "In Transit"
-                        print(f"Parcel {Parcel_id} is still in transit.")
-                        print("Your parcel is currently in ", Current_location)
-                    
-                    # Update the line with the new status
-                    updated_line = f"{order_id},{Pick_Up_State},{Drop_Off_State},{Parcel_status}\n"
-                    updated_lines.append(updated_line)
-                else:
-                    updated_lines.append(line)
-            else:
+            
+            if len(parts) != 4:
+                print(f"Skipped invalid line: {line.strip()}")
                 updated_lines.append(line)
+                continue
+
+            # Unpack parcel information
+            order_id, pick_up_state, drop_off_state, parcel_status = parts
+
+            if Parcel_id == order_id:
+                parcel_found = True
+
+                # Update status based on current hub location
+                if pick_up_state.lower() == Current_location.lower():
+                    parcel_status = "Picked up"
+                    pick_up_time = datetime.now().strftime("%H:%M")
+                    arrival_time = ""
+                    print(f"Parcel {Parcel_id} has been picked up from {Current_location}.")
+                elif drop_off_state.lower() == Current_location.lower():
+                    parcel_status = "Delivered"
+                    pick_up_time = ""
+                    arrival_time = datetime.now().strftime("%H:%M")
+                    print(f"Parcel {Parcel_id} has been successfully delivered to {Current_location}!")
+                else:
+                    parcel_status = "In Transit"
+                    pick_up_time = ""
+                    arrival_time = ""
+                    print(f"Parcel {Parcel_id} is still in transit at {Current_location}.")
+
+                # Update the line with additional timestamps
+                updated_line = f"{order_id},{pick_up_state},{drop_off_state},{parcel_status},{pick_up_time},{arrival_time}\n"
+            else:
+                # Retain the original line for non-matching parcel IDs
+                updated_line = f"{line.strip()},\n" if len(line.strip().split(",")) == 4 else line
+
+            updated_lines.append(updated_line)
 
     # Check if parcel ID was not found
     if not parcel_found:
         print("Invalid parcel ID, try again!")
+        return
 
     # Write back the updated lines
     with open("package_info.txt", "w") as file:
         file.writelines(updated_lines)
 
-    # if Current_location == "Johor":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "Kuala Lumpur":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "Butterworth":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "Kedah":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "Perlis":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "Kelantan":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "Terengganu":
-    #     parcel_status = input("Enter your parcel status (Delivered/Not Delivered): ").strip().lower()
-    #     if parcel_status.lower() == "delivered":
-    #         print("Your parcel is currently in ", selected_hub)
-    #         print("Arrival time: ", (datetime.now()).strftime("%H:%M"))
-    #     else:
-    #         print("You are currently in", selected_hub)
-    # elif selected_hub == "exit":
-    #     print("Exiting")
-    #     exit()
-    # else:
-    #     print("Invalid input, try again!")
-    # with open("availability_status_2.txt", "a") as file:
-    #     file.write(f"{selected_hub}, {parcel_status}, {datetime.now().strftime('%H:%M')}\n")
+    print("Parcel information updated successfully.")
 
 def maintenance_form():
     print("\n=================== Please fill up the maintenance claim form to the admin! ===================")
@@ -568,7 +540,6 @@ def maintenance_form():
         driver_menu()
     else:
         print("Invalid input, try again!")
-    # return Vehicle_Plate, UserID, Vehicle_Type_Selected, Service_Type, Repair_Cost, Maintenance_Date
 
 def vehicle_status():
     print("\n==============You are in vehicle status page.==============")
@@ -736,19 +707,6 @@ def collect_driver_info(UserID):
         else:
             Criminal_records = "No"
             Criminal_records_explanation = "No criminal records! Such a good driver!"
-        # print("\n===== Driver's Profile =====")
-        # print("Contact Information:", Contact_info)
-        # print("Address:", Address)
-        # print("Driving License:", Driving_license)
-        # print("Your criminal records explanation:", Criminal_records_explanation)
-        # print("===========================")
-        # with open("driver_profile.txt", "a") as file:
-        #     file.write(f"{UserID},{Contact_info},{Address},{Driving_license},{Criminal_records},{Criminal_records_explanation}\n")
-            # file.write(f"{Address}\n")
-            # file.write(f"{Driving_license}\n")
-            # file.write(f"{Criminal_records}\n")
-            # file.write(f"{Criminal_records_explanation}\n")
-        # return UserID, Contact_info, Address, Driving_license, Criminal_records, Criminal_records_explanation
         vehicle_type(UserID, Contact_info, Address, Driving_license, Criminal_records, Criminal_records_explanation)
     elif Decision.lower() == "yes":
         driver_menu()
