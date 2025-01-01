@@ -1,9 +1,12 @@
-import os
 from datetime import datetime
 
 # Create parceldetails.txt if it doesn't exist
-if not os.path.exists("parceldetails.txt"):
-    open("parceldetails.txt", "w").close()
+try:
+    with open("parceldetails.txt", "r"):
+        pass
+except FileNotFoundError:
+    with open("parceldetails.txt", "w"):
+        pass
 
 # Function to process login
 def login():
@@ -65,17 +68,16 @@ def process_payment():
 
 # Function to generate order ID with format "D@@"
 def generate_order_id(file_path="parceldetails.txt"):
-    # Check if the file exist
-    if os.path.exists(file_path): 
+    try:
         with open(file_path, "r") as file:
             # Read every line 
             # line.strip() at the front: Cleans up the valid lines you're reading
             # if line.strip() at the back: Filters out completely empty or whitespace-only lines
             lines = [line.strip() for line in file if line.strip()]
             # Check if the file is not empty
-            if lines: 
+            if lines:
                 # Get the last line
-                last_entry = lines[-1].strip()  
+                last_entry = lines[-1].strip()
                 if last_entry and "," in last_entry:
                     # Get the first value in the array
                     last_order = last_entry.split(",")[0]
@@ -83,8 +85,8 @@ def generate_order_id(file_path="parceldetails.txt"):
                 else:
                     order_number = 1
             else:
-                order_number = 1 
-    else:
+                order_number = 1
+    except FileNotFoundError:
         order_number = 1 
 
     # Format order ID as DXX
@@ -311,50 +313,95 @@ def Van_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
     payment(main_menu_callback)
     
 # Function to track order
-def track_order():
-    try:
-        # Parse parcel details once
-        with open("parceldetails.txt", "r") as parcel_file:
-            parcel_ids = [line.split(',')[1].strip() for line in parcel_file]
-    except FileNotFoundError:
-        print("Error: Parcel details file not found.")
-        return
+# def track_order():
+#     # Parse parcel details once
+#     with open("parceldetails.txt", "r") as parcel_file:
+#         parcel_ids = [line.split(',')[1].strip() for line in parcel_file]
 
-    try:
-        # Parse package information into a dictionary
-        with open("package_info.txt", "r") as package_file:
-            package_data = {}
-            for line in package_file:
-                parts = line.strip().split(",")
-                if len(parts) == 6:
-                    parcel_id, pick_up_state, drop_off_state, parcel_status, pick_up_time, arrival_time = parts
-                    package_data[parcel_id] = {
-                        "pick_up_state": pick_up_state,
-                        "drop_off_state": drop_off_state,
-                        "status": parcel_status,
-                        "pick_up_time": pick_up_time,
-                        "arrival_time": arrival_time
-                    }
-    except FileNotFoundError:
-        print("Error: Package information file not found.")
-        return
+#     # Parse package information into a dictionary
+#     with open("package_info.txt", "r") as package_file:
+#         package_data = {}
+#         for line in package_file:
+#             parts = line.strip().split(",")
+#             if len(parts) == 6:
+#                 parcel_id, pick_up_state, drop_off_state, parcel_status, pick_up_time, arrival_time = parts
+#                 package_data[parcel_id] = {
+#                     "pick_up_state": pick_up_state,
+#                     "drop_off_state": drop_off_state,
+#                     "status": parcel_status,
+#                     "pick_up_time": pick_up_time,
+#                     "arrival_time": arrival_time
+#                 }
+
+#     while True:
+#         order_id = input("Enter your Order ID: ").strip()
+
+#         # Validate order id
+#         if order_id not in parcel_ids:
+#             print("Pop Up: Invalid Order ID")
+#             main_menu()
+
+#         # Check if order_id exists in package_data
+#         if order_id in package_data:
+#             order = package_data[order_id]
+#             if order["status"].lower() == "picked up":
+#                 print(f"Picked Up Time: {order['Pick_up_time']}, Parcel Picked Up")
+#             elif order["status"].lower() == "delivered":
+#                 print(f"Arrival Time: {order['arrival_time']}, Parcel Delivered")
+#             else:
+#                 print(f"Current Status: {order['status']}, Parcel in Transit")
+#         else:
+#             print("Order ID exists in parcel details but no tracking information is available yet.")
+
+#         # User decision
+#         print("\nOptions:")
+#         print("1. Track another order")
+#         print("2. Back to main menu")
+#         decision = input("Enter your choice (1/2): ").strip()
+
+#         if decision != "1":
+#             print("Exiting order tracking.")
+#             main_menu()
+
+def track_order():
+    # Parse parcel details once
+    with open("parcel_info.txt", "r") as parcel_file:
+        parcel_ids = [line.split(',')[0].strip().lower() for line in parcel_file]
+
+    # Parse package information into a dictionary
+    package_data = {}
+    with open("parcel_info.txt", "r") as package_file:
+        for line in package_file:
+            parts = [part.strip() for part in line.strip().split(",")]
+            if len(parts) == 5:
+                order_id, parcel_status, pick_up_time, arrival_time, current_location = parts
+                package_data[order_id.lower()] = {
+                    "parcel_id": order_id,
+                    "parcel_status": parcel_status,
+                    "pick_up_time": pick_up_time,
+                    "arrival_time": arrival_time,
+                    "current_location": current_location
+                }
+            else:
+                print(f"Skipped invalid line in package_info.txt: {line}")
 
     while True:
-        order_id = input("Enter your Order ID: ").strip()
+        order_id = input("Enter your Order ID: ").strip().lower()
 
         # Validate order id
         if order_id not in parcel_ids:
             print("Pop Up: Invalid Order ID")
             main_menu()
-            return
 
         # Check if order_id exists in package_data
         if order_id in package_data:
             order = package_data[order_id]
-            if order["status"].lower() == "delivered":
+            if order["parcel_status"].lower() == "picked up":
+                print(f"Picked Up Time: {order['pick_up_time']}, Parcel Picked Up")
+            elif order["parcel_status"].lower() == "delivered":
                 print(f"Arrival Time: {order['arrival_time']}, Parcel Delivered")
             else:
-                print(f"Current Status: {order['status']}, Parcel in Transit")
+                print(f"Current location: {order['current_location']}, Parcel in Transit")
         else:
             print("Order ID exists in parcel details but no tracking information is available yet.")
 
@@ -367,7 +414,6 @@ def track_order():
         if decision != "1":
             print("Exiting order tracking.")
             main_menu()
-            return
 
 def main_menu():
     print("\n===== MAIN MENU =====")
@@ -404,9 +450,11 @@ def main_menu():
 
     elif Decision == "2":
         track_order()
-    else:
+    elif Decision == "3":
         print("Exiting...")
         process_login()
+    else:
+        print("Invalid input, try again!")
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #============================ Driver ===============================
@@ -419,8 +467,7 @@ def current_hub():
         print("5 Perlis")
         print("6 Kelantan")
         print("7 Terengganu")
-        print("Waiting for task!")
-        Decision = input("Select your drop off address (1/2/3/4/5/6/7/8) (or type exit to exit): ").strip().lower()
+        Decision = input("Select your current location (1/2/3/4/5/6/7) (or type exit to exit): ").strip().lower()
 
         if Decision == "1":
             return("Johor")
@@ -436,36 +483,31 @@ def current_hub():
             return("Kelantan")
         elif Decision == "7":
             return("Terengganu")
-        elif Decision == "8":
-            return("Waiting for task!")
         elif Decision == "exit":
             print("Exiting")
             driver_menu()
         else:
             print("Invalid input, try again!")
 
-from datetime import datetime
-
-from datetime import datetime
-
-def parcel_hub():
-    Current_location = current_hub()  # Ensure this function is defined elsewhere
+def parcel_status():
+    Current_location = current_hub()  
 
     Parcel_id = input("Enter parcel ID: ").strip()
     updated_lines = []
-    parcel_found = False  # Flag to track if the parcel is found
+    parcel_found = False  
 
-    with open("package_info.txt", "r") as file:
+    # with open("package_info.txt", "r") as file:
+    with open("parceldetails.txt", "r") as file:
         for line in file:
             parts = [part.strip() for part in line.strip().split(",")]
             
-            if len(parts) != 4:
+            if len(parts) != 10:
                 print(f"Skipped invalid line: {line.strip()}")
                 updated_lines.append(line)
                 continue
 
             # Unpack parcel information
-            order_id, pick_up_state, drop_off_state, parcel_status = parts
+            order_number, order_id, vehicle_type, Parcel_Weight, pick_up_state, drop_off_state, Round_Trip, Quantity_Of_Round_Trip, Vehicle_Price, Total_Price = parts
 
             if Parcel_id == order_id:
                 parcel_found = True
@@ -475,25 +517,25 @@ def parcel_hub():
                     parcel_status = "Picked up"
                     pick_up_time = datetime.now().strftime("%H:%M")
                     arrival_time = ""
-                    print(f"Parcel {Parcel_id} has been picked up from {Current_location}.")
                 elif drop_off_state.lower() == Current_location.lower():
                     parcel_status = "Delivered"
                     pick_up_time = ""
                     arrival_time = datetime.now().strftime("%H:%M")
-                    print(f"Parcel {Parcel_id} has been successfully delivered to {Current_location}!")
                 else:
                     parcel_status = "In Transit"
                     pick_up_time = ""
                     arrival_time = ""
-                    print(f"Parcel {Parcel_id} is still in transit at {Current_location}.")
+                
+                with open("parcel_info.txt", "a") as file:
+                    file.write(f"{Parcel_id},{parcel_status},{pick_up_time},{arrival_time},{Current_location}\n")
 
-                # Update the line with additional timestamps
-                updated_line = f"{order_id},{pick_up_state},{drop_off_state},{parcel_status},{pick_up_time},{arrival_time}\n"
-            else:
-                # Retain the original line for non-matching parcel IDs
-                updated_line = f"{line.strip()},\n" if len(line.strip().split(",")) == 4 else line
+            #     # Update the line with additional timestamps
+            #     updated_line = f"{order_id},{pick_up_state},{drop_off_state},{parcel_status},{pick_up_time},{arrival_time}\n"
+            # else:
+            #     # Retain the original line for non-matching parcel IDs
+            #     updated_line = f"{line.strip()},\n" if len(line.strip().split(",")) == 4 else line
 
-            updated_lines.append(updated_line)
+            # updated_lines.append(updated_line)
 
     # Check if parcel ID was not found
     if not parcel_found:
@@ -501,10 +543,10 @@ def parcel_hub():
         return
 
     # Write back the updated lines
-    with open("package_info.txt", "w") as file:
-        file.writelines(updated_lines)
+    # with open("package_info.txt", "w") as file:
+    #     file.writelines(updated_lines)
 
-    print("Parcel information updated successfully.")
+    print("Parcel status updated successfully.")
 
 def maintenance_form():
     print("\n=================== Please fill up the maintenance claim form to the admin! ===================")
@@ -523,6 +565,9 @@ def maintenance_form():
                     Service_Type = input("Enter your service type(engine/brake/aircon/others): ")
                     Repair_Cost = float(input("Enter your repair cost(RM): "))
                     Maintenance_Date = input("Enter your maintenance date(DD-MM-YYYY): ")
+
+                    with open("maintenance_form.txt","a") as file:
+                        file.write(f"{UserID},{stored_Vehicle_Plate},{stored_Vehicle_Type},{Service_Type},{Repair_Cost},{Maintenance_Date}\n")
 
                     print("\n===== Maintenance Claim Form =====")
                     print("Vehicle Plate: ", stored_Vehicle_Plate)
@@ -594,11 +639,11 @@ def Maintenance_monthly():
 
 def fuel_management():
     print("\n=================== Welcome to fuel management page! ===================")
-    # Vehicle_Type_Selected = vehicle_type()
     UserID = input("Enter your user ID: ")
     print("1. Proceed\n2. Exit")
     Decision = input("Enter your decision (1/2):")
     if Decision == "1":
+        Vehicle_Type = input("Enter your vehicle type (motor/car/van): ")
         selected_hub = current_hub()
         fuel_levels = input("Enter your current fuel levels (high/low): ")
         if fuel_levels.lower() == "low":
@@ -607,6 +652,8 @@ def fuel_management():
             refuel_time = input("Enter the time of refueling (HH:MM):")    
             refuel_quantity = input("Enter how many litres you refueled:")
             refuel_cost = input("Enter the refuel amount (RM):")
+            mileage = ""
+            remaining_fuel = ""
             print("\n=================== Fuel Management Record ===================")
             print("Your refuel date of the vehicle:", refuel_date)
             print("Your refuel time is at:", refuel_time)
@@ -618,17 +665,53 @@ def fuel_management():
         else: 
             mileage = input("Enter your mileage(km): ")
             remaining_fuel = input("Enter your remaining fuel levels: ")
+            refuel_date = ""
+            refuel_time = ""    
+            refuel_quantity = ""
+            refuel_cost = ""
             print("\n=================== Fuel Management Record ===================")
             print("Your current mileage is at:", mileage, "km")
             print("Your current fuel levels is at:", remaining_fuel, "litres")
             print("Your fuel status has been send to admin! Thank you!")
             print("Have a great journey ahead!")  
             print("================================================================")
+
+        with open("driver_fuel_management.txt", "a") as file:
+            file.write(f"{UserID},{Vehicle_Type},{selected_hub},{fuel_levels},{refuel_date},{refuel_time},{refuel_quantity},{refuel_cost},{mileage},{remaining_fuel}\n")
         driver_menu()
     elif Decision == "2":
         driver_menu()
     else:
         print("Invalid input, try again!")
+
+def driver_availability():
+    user_id = input("Enter your user ID: ").strip()
+    availability_status = input("Enter your availability status (available/not available): ").strip().lower()
+
+    if availability_status == "available":
+        time_schedule = "Sample Time Schedule"  # Placeholder for actual data
+        package_info = "Sample Package Info"    # Placeholder for actual data
+        route = "Sample Route"                  # Placeholder for actual data
+        Current_hub = ""
+        print("\n=================== New Task Assigned!!! ===================")
+        print(f"Time Schedule: {time_schedule}")
+        print(f"Package Info: {package_info}")
+        print(f"Route: {route}")
+        print("================================================================")
+        task_assigned = "yes"
+          
+    elif availability_status == "not available":
+        Current_hub = current_hub()
+        task_assigned = ""
+        print("\n============== Driver availability status has been updated! ==============")
+    
+    else:
+        print("Invalid input, try again!")
+        driver_menu()
+
+    with open("driver_availability.txt", "a") as file:
+        file.write(f"{user_id},{availability_status},{Current_hub},{task_assigned}\n")
+    driver_menu()
 
 def driver_menu():
     print("\n=================== Welcome to driver page! How are you today? ===================")
@@ -637,7 +720,8 @@ def driver_menu():
         print("2. Maintenance monthly")
         print("3. Update parcel status")
         print("4. Fuel Management")
-        print("5. Exit")
+        print("5. Driver Availability")
+        print("6. Exit")
         Decision = input("Which page you want do to go to? (1/2/3/4/5): ").strip().lower()
 
         if Decision == "1":
@@ -645,10 +729,12 @@ def driver_menu():
         elif Decision == "2":
             Maintenance_monthly()
         elif Decision == "3":
-            parcel_hub()
+            parcel_status()
         elif Decision == "4":
             fuel_management()
         elif Decision == "5":
+            driver_availability()
+        elif Decision == "6":
             print("Exiting")
             process_login()
         else:
@@ -747,27 +833,22 @@ def process_login():
 
             # Validate user
             login_successful = False
-            try:
-                with open("users.txt", "r") as file:
-                    for line in file:
-                        parts = [part.strip() for part in line.strip().split(",")]
-                        if len(parts) == 4:  
-                            stored_UserID, stored_User_Name, stored_Password, stored_User_Type = parts
-                            if UserID == stored_UserID and Password == stored_Password:
-                                print("Login successful!")
-                                login_successful = True
-                                if stored_User_Type.lower() == "driver":
-                                    collect_driver_info(UserID)
-                                else:
-                                    main_menu()
-                                break
-                
-                if not login_successful:
-                    print("Invalid username or password")
-            except FileNotFoundError:
-                print("User database not found")
-            except ValueError:
-                print("Error reading user database")
+            with open("users.txt", "r") as file:
+                for line in file:
+                    parts = [part.strip() for part in line.strip().split(",")]
+                    if len(parts) == 4:  
+                        stored_UserID, stored_User_Name, stored_Password, stored_User_Type = parts
+                        if UserID == stored_UserID and Password == stored_Password:
+                            print("Login successful!")
+                            login_successful = True
+                            if stored_User_Type.lower() == "driver":
+                                collect_driver_info(UserID)
+                            else:
+                                main_menu()
+                            break
+            
+            if not login_successful:
+                print("Invalid username or password")
         elif Decision == "3":
             break
         else:
