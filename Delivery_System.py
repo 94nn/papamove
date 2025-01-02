@@ -115,8 +115,10 @@ def payment(main_menu_callback):
         if lines:
             last_line = lines[-1]
             parts = [part.strip() for part in last_line.strip().split(",")]
-            order_number, order_id, Vehicle_Type, Parcel_Weight, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip, Vehicle_Price, Total_Price = parts
-    print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip)
+            order_number, order_id, Vehicle_Type, Parcel_Weight, Pick_Up_State, Drop_Off_State, Round_Trip, Quantity_Of_Round_Trip, 
+            Vehicle_Price, Total_Price = parts
+    print_package_info(Vehicle_Type, Parcel_Weight, Total_Price, order_id, Pick_Up_State, Drop_Off_State, Round_Trip, 
+                       Quantity_Of_Round_Trip)
 
     confirm = input("Do you want to proceed with payment? (yes/no): ").lower()
     if confirm == "yes":
@@ -188,7 +190,8 @@ def Motor_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, 
         Total_Price = count_price(Price, float(Vehicle_Price), Quantity_Of_Round_Trip, float(Parcel_Weight))
 
     with open("parceldetails.txt", "a") as file:
-        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
+        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},
+                   {Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
     
     payment(main_menu_callback)
 
@@ -248,13 +251,13 @@ def Car_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
         Total_Price = count_price(Price, float(Vehicle_Price), Quantity_Of_Round_Trip, float(Parcel_Weight))
 
     with open("parceldetails.txt", "a") as file:
-        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
+        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},
+                   {Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
     
     payment(main_menu_callback)
 
 # Function to get route price for van
 def Van_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Drop_Off_State, Vehicle_Price, order_id, order_number):
-    # write a dictionary for the price of the round trip in tuple
     round_trip_price = {
         ('johor', 'kuala lumpur'): 0.05,
         ('johor', 'butterworth'): 0.10,
@@ -288,10 +291,8 @@ def Van_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
         ('kelantan', 'terengganu'): 0.00
     }
 
-    # Use dictionary lookup instead of if-else chain
     route_key = (Pick_Up_State.lower(), Drop_Off_State.lower())
 
-    # Validate route
     if route_key in round_trip_price:
         Price = round_trip_price[route_key]
     else:
@@ -308,7 +309,8 @@ def Van_Route(main_menu_callback, Vehicle_Type, Parcel_Weight, Pick_Up_State, Dr
         Total_Price = count_price(Price, float(Vehicle_Price), Quantity_Of_Round_Trip, float(Parcel_Weight))
 
     with open("parceldetails.txt", "a") as file:
-        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},{Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
+        file.write(f"{order_number},{order_id},{Vehicle_Type},{Parcel_Weight},{Pick_Up_State},{Drop_Off_State},{Round_Trip},
+                   {Quantity_Of_Round_Trip},{Vehicle_Price},{Total_Price}\n")
     
     payment(main_menu_callback)
     
