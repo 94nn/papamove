@@ -19,6 +19,7 @@ def admin_dashboard():
             reports()
         elif admin_menu_choice == 5:   
             print("\nLogged Out!")
+            main()
         else:
             print("\nInvalid choice. Try again.")
             admin_dashboard()
@@ -255,7 +256,7 @@ def vehicle_mgmt():
     elif vehicle_menu_choice == 4:
         admin_dashboard()
     else:
-        print("\nInvalid option. Try again.") 
+        print("\nInvalid choice. Try again.") 
 
 #------------------------------------------------------------------------------------------
 #*fuel management* functions:
@@ -293,7 +294,7 @@ def fuel_consumption():
     fuel_consumption_fp = "C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/consumption_patterns.txt"
     while True:
         try: 
-            view_choice = int(input("\nFuel Consumption Tracker\n1. View Fuel Consumptions of Vehicles\n2. Back to Fuel Management Page\nEnter your choice number: "))
+            view_choice = int(input("\nFuel Consumption Tracker\n1. View Fuel Consumptions of Vehicles\n2. Back to Fuel Management Page\nEnter your choice number: ").strip())
             if view_choice == 1:
                 try:
                     with open(fuel_consumption_fp, "r") as file: #read the fuel consumption text file
@@ -304,8 +305,6 @@ def fuel_consumption():
                         print("------------------------\n")
                 except FileNotFoundError:
                     print("\nFuel consumption file not found.")
-                except ValueError:
-                    print("\nFile content is not in the expected format.")
             elif view_choice == 2:
                 fuel_mgmt()
             else:
@@ -374,138 +373,317 @@ def fuel_mgmt():
     elif fuel_menu_choice == 4:
         admin_dashboard()
     else:
-        print("\nInvalid option. Try again.")
+        print("\nInvalid choice. Try again.")
 
 #------------------------------------------------------------------------------------------
 #*driver management* functions:
-#1 - define view shipment/vehicle/driver's current location page
-def current_location():
-    print("Driver's Current Location Tracker")
+#1 - helper function to read data from text files
+import os
+def read_file(filename):
+    if not os.path.exists(filename):
+        return []
+    with open(filename, 'r') as file:
+        return file.readlines()
 
-#2 - define view driver availability page
-def driver_availability():
+#2 - define view shipment/vehicle/driver's current location page
+def get_current_location(vehicle_id=None, driver_id=None, shipment_id=None):
+    print("\nCurrent Location Tracker")
+    #returns the current location of the vehicle, driver, or shipment
+    #either vehicle_id, driver_id, or shipment_id must be provided
+    if vehicle_id:
+        vehicles = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/admin_vehicles_info.txt")
+        for vehicle in vehicles:
+            vehicle_data = vehicle.strip().split('|')
+            if vehicle_data[0] == vehicle_id:
+                return f"Vehicle {vehicle_id} is at location ({vehicle_data[1]}, {vehicle_data[2]})"
+        return "Vehicle not found."
+    
+    if driver_id:
+        drivers = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/admin_drivers_info.txt")
+        for driver in drivers:
+            driver_data = driver.strip().split('|')
+            if driver_data[0] == driver_id:
+                return f"Driver {driver_id} is at location (Unknown, Unknown). Status: {driver_data[1]}"
+        return "Driver not found."
+    
+    if shipment_id:
+        shipments = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/shipments.txt")
+        for shipment in shipments:
+            shipment_data = shipment.strip().split('|')
+            if shipment_data[0] == shipment_id:
+                return f"Shipment {shipment_id} is at location ({shipment_data[1]}, {shipment_data[2]})"
+        return "Shipment not found."
+
+    return "Error: No valid identifier provided for vehicle, driver, or shipment."
+
+#3 - define view driver availability page
+def driver_availability(driver_id):
     print("Driver's Availability Status")
+    #check if the driver is available by checking ongoing assignments & display the driver's schedule
+    drivers = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/admin_drivers_info.txt")
+    for driver in drivers:
+        driver_data = driver.strip().split('|')
+        if driver_data[0] == driver_id:
+            availability_status = "Available" if driver_data[1] == "Available" else "Not Available"
+            print(f"Driver {driver_id} is {availability_status}.\n")
+            
+            #now display the driver's schedule in a table format
+            print(f"Driver {driver_id}'s Weekly Schedule:")
+            
+            #print headers
+            print(f"{'Day':<10}{'Dispatched':<20}{'Returned':<20}{'Route'}")
+            print("-" * 60)  #separator line
+            
+            #get the driver's schedule
+            for i in range(2, len(driver_data), 4):
+                dispatched = driver_data[i]
+                returned = driver_data[i+1]
+                route = driver_data[i+2]
+                day = f"Day {int((i-2)/4)+1}"  #generate Day number
+                print(f"{day:<10}{dispatched:<20}{returned:<20}{route}")
+            
+            return  availability_status #end function after printing schedule
+    return "Driver not found."
 
-#3 - define view driver's ongoing assignment page
-def ongoing_assignment():
+#4 - define view driver's ongoing assignment page
+def get_ongoing_assignments(driver_id):
     print("Driver's Ongoing Assignment Tracker")
+    #returns a list of ongoing assignments for the given driver ID
+    shipments = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/shipments.txt")
+    ongoing_assignments = []
+    
+    for shipment in shipments:
+        shipment_data = shipment.strip().split('|')
+        if shipment_data[3] == driver_id:
+            ongoing_assignments.append(shipment_data[0])
+    
+    if not ongoing_assignments:
+        return "No ongoing assignments."
+    
+    return ongoing_assignments
+
+#5 - define assign a shipment page
+def assign_shipment(driver_id, shipment_id, origin, destination):
+    shipments_file = "C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/shipments.txt"
+    #function to assign a shipment to a specific driver by driver ID.
+    #check if the driver is available
+    availability = driver_availability(driver_id)
+    if "Not Available" in availability:
+        return availability  #cannot assign if the driver is not available
+    
+    #assign shipment to the driver
+    shipments = read_file(shipments_file)
+    shipment_found = False
+    
+    for shipment in shipments:
+        shipment_data = shipment.strip().split('|')
+        if shipment_data[0] == shipment_id:
+            shipment_found = True
+            return f"Shipment {shipment_id} already exists and cannot be added again."
+    
+    new_shipment = f"{shipment_id}|{origin}|{destination}|{driver_id}\n"
+    shipments.append(new_shipment)
+    
+    with open(shipments_file, 'w') as file:
+        file.writelines(shipments)
+    
+    return f"New shipment {shipment_id} has been created and assigned to driver {driver_id}."
 
 #define *driver management* main page
 def driver_mgmt():
     print("\n--- Driver Management Page ---")
-    driver_menu_choice = int(input("1. View Shipment/Vehicle/Driver's Current Location\n2. View Driver Availability\n3. View Driver's Ongoing Assignment\n4. Back to Admin Dashboard\nEnter your choice number: "))
+    driver_menu_choice = int(input("1. View Shipment/Vehicle/Driver's Current Location\n2. View Driver Availability\n3. View Driver's Ongoing Assignment\n4. Assign a Shipment to a Driver\n5. Back to Admin Dashboard\nEnter your choice number: "))
     
     #check driver menu choice
     if driver_menu_choice == 1:
-        current_location()
+        entity_choice = int(input("\nView current location of:\n1. Vehicle\n2. Driver\n3. Shipment\nEnter your choice number: "))
+        
+        if entity_choice == 1:
+            vehicle_id = input("Enter Vehicle ID: ")
+            print(get_current_location(vehicle_id=vehicle_id))
+        elif entity_choice == 2:
+            driver_id = input("Enter Driver ID: ")
+            print(get_current_location(driver_id=driver_id))
+        elif entity_choice == 3:
+            shipment_id = input("Enter Shipment ID: ")
+            print(get_current_location(shipment_id=shipment_id))
+        else:
+            print("Invalid choice.")
+        driver_mgmt()
+
     elif driver_menu_choice == 2:
-        driver_availability()
+        driver_id = input("Enter Driver ID: ")
+        print(driver_availability(driver_id))
+        driver_mgmt()
+
     elif driver_menu_choice == 3:
-        ongoing_assignment()
+        driver_id = input("Enter Driver ID: ")
+        assignments = get_ongoing_assignments(driver_id)
+        if isinstance(assignments, list):
+            print(f"Ongoing Assignments for {driver_id}:")
+            for assignment in assignments:
+                print(f"- {assignment}")
+        else:
+            print(assignments)
+        driver_mgmt()
+
     elif driver_menu_choice == 4:
+        print("\nShipment's Driver Assignment")
+        driver_id = input("Enter driver ID of assigned driver: ")
+        shipment_id = input("Enter new shipment ID: ")
+        origin = input("Enter shipment origin: ")
+        destination = input("Enter shipment destination: ")
+        print(assign_shipment(driver_id, shipment_id, origin, destination))
+        driver_mgmt()
+
+    elif driver_menu_choice == 5:
         admin_dashboard()
+
     else:
-        print("\nInvalid option. Try again.")
+        print("\nInvalid choice. Try again.")
 
 #------------------------------------------------------------------------------------------
 #*reports* functions:
+#1.1 - read key metrics data from txt
+def read_data(file_path):
+    file_path  = "C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/metrics_data.txt"
+    #reads data from the provided text file and returns a dictionary.
+    with open(file_path, 'r') as file:
+        data_lines = file.readlines()
+    data = {}
+    current_category = None
+    for line in data_lines:
+        line = line.strip()
+        if line.endswith(":"):
+            current_category = line[:-1]  #identify the current category.
+            data[current_category] = {}
+        elif "-" in line:
+            key, value = line.replace("- ", "").split(": ")
+            data[current_category][key.strip()] = float(value.strip())  #parse key-value pairs.
+    return data
+
+#1.2 - calculates the inventory turnover ratio
+def calculate_inventory_turnover(cost_of_goods_sold, average_inventory):
+    return cost_of_goods_sold / average_inventory
+
+#1.3 - calculates the average truck turnaround time
+def calculate_truck_turnaround_time(total_truck_time, number_of_trucks):
+    return total_truck_time / number_of_trucks
+
+#1.4 - calculates the average transportation cost per unit distance
+def calculate_average_transportation_cost(total_transportation_cost, total_distance):
+    return total_transportation_cost / total_distance
+
+#1.5 - calculates the operating ratio
+def calculate_operating_ratio(total_operating_expenses, total_revenue):
+    return (total_operating_expenses / total_revenue) * 100
+
 #1 - define key metrics report page
-def key_metrics():
-    inventory_turnover_fp = ""
-    truck_turnaround_fp = ""
-    avg_cost_fp = ""
-    operating_ratio_fp = ""
+def key_metrics(data):
+    inventory_turnover = calculate_inventory_turnover(
+        data['inventory']['cost_of_goods_sold'], data['inventory']['average_inventory']
+    )
+    truck_turnaround = calculate_truck_turnaround_time(
+        data['truck_turnaround']['total_truck_time'], data['truck_turnaround']['number_of_trucks']
+    )
+    avg_transportation_cost = calculate_average_transportation_cost(
+        data['transportation_cost']['total_transportation_cost'], data['transportation_cost']['total_distance']
+    )
+    operating_ratio = calculate_operating_ratio(
+        data['operating']['total_operating_expenses'], data['operating']['total_revenue']
+    )
     print("--- Key Metrics Report ---")
     while True:
         try: 
-            view_choice = int(input("\n1. View Inventory Turnover Ratio\n2. View Truck Turnaround Time\n3. Average Transportation Cost\n4. Operating Ratio\n5. Back to Reports Page\nEnter your choice number: "))
+            view_choice = int(input("\n1. View Inventory Turnover Ratio\n2. View Truck Turnaround Time\n3. Average Transportation Cost\n4. Operating Ratio\n5. View Summary Key Metrics Report\n6. Back to Reports Page\nEnter your choice number: "))
             if view_choice == 1:
-                try:
-                    #display inventory turnover ratio
-                    with open(inventory_turnover_fp, "r") as file:
-                        print("\n--- Vehicle Utilization ---")
-                        for line in file:
-                            vehicle_id, distance = line.strip().split(", ")
-                            print(f"Vehicle {vehicle_id}: {distance} km this week")
-                        print("----------------------------\n")
-                except FileNotFoundError:
-                    print("\nVehicle utilization file not found.")
-                except ValueError:
-                    print("\nFile content is not in the expected format.")
+                print(f"\nInventory Turnover Ratio: {inventory_turnover:.2f}") #display inventory turnover ratio 
             elif view_choice == 2:
-                try:
-                    #display truck turnaround time
-                    vehicle_id_input = input("Enter the Vehicle ID: ").strip()
-                    found = False
-                    with open(truck_turnaround_fp, "r") as file:
-                        for line in file:
-                            vehicle_id, distance = line.strip().split(", ")
-                            if vehicle_id == vehicle_id_input:
-                                print(f"\n--- Vehicle Utilization ---")
-                                print(f"Vehicle {vehicle_id}: {distance} km this week")
-                                print("----------------------------\n")
-                                found = True
-                                break
-                    if not found:
-                        print(f"\nNo utilization report found for Vehicle ID: {vehicle_id_input}")
-                except FileNotFoundError:
-                    print("\nVehicle utilization file not found.")
-                except ValueError:
-                    print("\nFile content is not in the expected format.")
+                print(f"\nAverage Truck Turnaround Time: {truck_turnaround:.2f} hours") #display truck turnaround time
             elif view_choice == 3:
-                try:
-                    #display average transportation cost
-                    with open(avg_cost_fp, "r") as file:
-                        print("\n--- Vehicle Utilization ---")
-                        for line in file:
-                            vehicle_id, distance = line.strip().split(", ")
-                            print(f"Vehicle {vehicle_id}: {distance} km this week")
-                        print("----------------------------\n")
-                except FileNotFoundError:
-                    print("\nVehicle utilization file not found.")
-                except ValueError:
-                    print("\nFile content is not in the expected format.")
+                print(f"\nAverage Transportation Cost: RM{avg_transportation_cost:.2f} per km") #display average transportation cost
             elif view_choice == 4:
-                try:
-                    #display operating ratio
-                    with open(operating_ratio_fp, "r") as file:
-                        print("\n--- Vehicle Utilization ---")
-                        for line in file:
-                            vehicle_id, distance = line.strip().split(", ")
-                            print(f"Vehicle {vehicle_id}: {distance} km this week")
-                        print("----------------------------\n")
-                except FileNotFoundError:
-                    print("\nVehicle utilization file not found.")
-                except ValueError:
-                    print("\nFile content is not in the expected format.")
+                print(f"\nOperating Ratio: {operating_ratio:.2f}%") #display operating ratio
             elif view_choice == 5:
+                print(f"\nSummary of Key Metrics Report\nInventory Turnover Ratio: {inventory_turnover:.2f}\nAverage Truck Turnaround Time: {truck_turnaround:.2f} hours\nAverage Transportation Cost: RM{avg_transportation_cost:.2f} per km\nOperating Ratio: {operating_ratio:.2f}%") #display all key metrics report
+            elif view_choice == 6:
                 reports()
             else:
-                print("\nInvalid choice. Please enter 1, 2, or 3.")
+                print("\nInvalid choice. Please enter 1, 2, 3, 4, 5, or 6.")
         except ValueError:
             print("\nInvalid input. Please enter a number.")
 
-#2 - define trip logs report
-def trip_logs():
-    print("--- Trip Logs Report ---")
-    #display all trips and its details (route details, timestamps), data fetch from txt
+#2.1 - reads trip logs from a txt file and returns them as a list of dictionaries
+def read_trip_log(file_path):
+    #ach dictionary contains details like route, timestamps, and additional information.
+    #initialize an empty list to store trip logs
+    trip_logs = []
+    try:
+        #open the file for reading
+        with open(file_path, 'r') as file:
+            #process each line in the file
+            for line in file:
+                #split the line into parts based on commas
+                parts = line.strip().split(', ')
+                #initialize a dictionary for each trip log entry
+                trip_log = {}
+                #for each part, split it by the delimiter ': ' and assign it to the dictionary
+                for part in parts:
+                    key, value = part.split(': ', 1)
+                    trip_log[key.strip()] = value.strip()
+                #add the trip log entry to the list
+                trip_logs.append(trip_log)
+    except FileNotFoundError:
+        print(f"Error: File at {file_path} not found.")
+    #return the list of trip logs
+    return trip_logs
 
+#2 - define trip logs report
+def trip_logs(trip_logs):
+    print("--- Trip Logs Report ---")
+    #check if there are no trip logs to display
+    if not trip_logs:
+        print("No trip logs available.")
+        return
+    
+    #display all trips and its details (route details, timestamps), data fetch from txt
+    #print the header for the table
+    print(f"{'Route':<30}{'Timestamp':<30}{'Driver':<50}")
+    print("=" * 110)
+    
+    #iterate through the trip logs and print each log's details
+    for log in trip_logs:
+        #get route, timestamp, and details for each log entry
+        route = log.get('Route', 'N/A')
+        timestamp = log.get('Timestamp', 'N/A')
+        driver = log.get('Driver', 'N/A')
+        
+        #print the trip log in a formatted way
+        print(f"{route:<30}{timestamp:<30}{driver:<50}")
 
 #define *reports* main page
 def reports():
     print("\n--- Reports ---")
     reports_menu_choice = int(input("1. View Key Metrics Report\n2. View Trip Logs Report\n3. Back to Admin Dashboard\nEnter your choice number: "))
-    
+
     #check reports menu choice
     if reports_menu_choice == 1:
-        key_metrics()
+        #read the data from the text file
+        data = read_data("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/metrics_data.txt")
+        #pass the data to key_metrics
+        key_metrics(data)
     elif reports_menu_choice == 2:
-        trip_logs()
+        #read the trip logs from the text file
+        trip_logs_data = read_trip_log("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/trip_logs.txt")
+        #pass the trip logs data to trip_logs function
+        trip_logs(trip_logs_data)
+        reports()
     elif reports_menu_choice == 3:
         admin_dashboard()
     else:
-        print("\nInvalid option. Try again.")
+        print("\nInvalid choice. Try again.")
 
+#------------------------------------------------------------------------------------------
 #define admin's main navigation
 def main():
     while True:
