@@ -1,0 +1,15 @@
+inventory:
+- cost_of_goods_sold: 150000
+- average_inventory: 50000
+
+truck_turnaround:
+- total_truck_time: 3000
+- number_of_trucks: 50
+
+transportation_cost:
+- total_transportation_cost: 20000
+- total_distance: 4000
+
+operating:
+- total_operating_expenses: 75000
+- total_revenue: 100000
