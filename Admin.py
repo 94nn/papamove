@@ -81,7 +81,6 @@ def vehicle_performance():
             print("\nThe data in the file is not in the expected format.")
 
 #2.1 - read vehicle maintenance history txt file
-import ast
 def read_maintenance_history(file_path, vehicle_id):
     try:
         with open(file_path, 'r') as file:
@@ -90,21 +89,28 @@ def read_maintenance_history(file_path, vehicle_id):
         #filter records based on vehicle_id
         print(f"\nMaintenance history for Vehicle ID: {vehicle_id}")
         found = False
-        for line in lines:
+        for line in lines[1:]: #start from the second line
             try:
-                record = ast.literal_eval(line.strip())
-            except (SyntaxError, ValueError):
-                print(f"\nSkipping invalid record: {line.strip()}")
-                continue
-        
-            if isinstance(record, dict) and 'vehicle_id' in record:
+                #split the line into fields
+                fields = line.strip().split(",")
+                record = {
+                    'vehicle_id': int(fields[0]),
+                    'maintenance_id': int(fields[1]),
+                    'maintenance_date': fields[2],
+                    'maintenance_service': fields[3],
+                    'maintenance_cost': float(fields[4]),
+                }
+
+                #check if the record matches the given vehicle_id
                 if record['vehicle_id'] == vehicle_id:
                     found = True
                     print(f"Maintenance ID: {record.get('maintenance_id', 'N/A')}")
                     print(f"Date: {record.get('maintenance_date', 'N/A')}")
                     print(f"Service: {record.get('maintenance_service', 'N/A')}")
-                    print(f"Cost: ${record.get('maintenance_cost', 'N/A')}")
+                    print(f"Cost: RM{record.get('maintenance_cost', 'N/A')}")
                     print()
+            except (IndexError, ValueError) as e:
+                print(f"\nSkipping invalid record: {line.strip()} (Error: {e})")
 
         if not found:
             print(f"\nNo maintenance history found for Vehicle ID {vehicle_id}.")
@@ -130,45 +136,49 @@ def vehicle_maintenance():
         vehicle_mgmt()
 
 #3.1 - save vehicles inspection to txt file
-import json
 def save_vehicles_to_txt(vehicles, file_path):
-    #save the vehicles dictionary to txt file
+    #save the vehicles dictionary to a text file
     with open(file_path, 'w') as file:
         for vehicle_id, data in vehicles.items():
-            vehicle_dict = {
-                "vehicle_id": [vehicle_id],  #wrap the ID in a list
-                "maintenance_alerts": data["maintenance_alerts"],
-                "inspection_schedule": data["inspection_schedule"],
-            }
-            #write the dictionary as a string to the file
+            #construct the vehicle_dict string representation
+            vehicle_dict = (
+                f"{{'vehicle_id': [{vehicle_id}], "
+                f"'maintenance_alerts': {data['maintenance_alerts']}, "
+                f"'inspection_schedule': {data['inspection_schedule']}}}"
+            )
             file.write(f"{vehicle_dict}\n")
 
 #3.2 - read vehicles inspection data in txt file
-import ast
 def load_vehicles_from_txt(file_path):
     vehicles = {}
-    #load the vehicles dictionary from txt file
+    #Load the vehicles dictionary from txt file
     try:
         with open(file_path, 'r') as file:
             for line in file:
-                #convert the line from a string to a dictionary
+                #parse the line as a dictionary string manually
                 try:
-                    vehicle_data = ast.literal_eval(line.strip())  #safely parse the dictionary string
-                    
-                    #extract the vehicle ID and other fields
-                    vehicle_id = vehicle_data['vehicle_id'][0]  #get the first element of the list
-                    alerts = vehicle_data.get('maintenance_alerts', [])
-                    schedules = vehicle_data.get('inspection_schedule', [])
-                    
-                    #save the data into the vehicles dictionary
-                    vehicles[vehicle_id] = {
-                        "maintenance_alerts": alerts,
-                        "inspection_schedule": schedules
-                    }
-                except (SyntaxError, ValueError):
+                    #removing surrounding spaces and handling the dictionary format manually
+                    line = line.strip().replace("'", '"')  #replace single quotes with double quotes for valid dict format
+                    if line.startswith('{') and line.endswith('}'):
+                        vehicle_data = eval(line)  #evaluate the dictionary string
+
+                        #extract the vehicle ID and other fields
+                        vehicle_id = vehicle_data['vehicle_id'][0]  #get the first element of the list
+                        alerts = vehicle_data.get('maintenance_alerts', [])
+                        schedules = vehicle_data.get('inspection_schedule', [])
+
+                        #save the data into the vehicles dictionary
+                        vehicles[vehicle_id] = {
+                            "maintenance_alerts": alerts,
+                            "inspection_schedule": schedules
+                        }
+                    else:
+                        print(f"\nSkipping invalid line: {line}")
+                except (SyntaxError, ValueError, NameError):
                     print(f"\nSkipping invalid line: {line}")
     except FileNotFoundError:
         print("\nFile not found.")
+    
     return vehicles
 
 #3.3 - plan inspection for a vehicle
@@ -378,12 +388,12 @@ def fuel_mgmt():
 #------------------------------------------------------------------------------------------
 #*driver management* functions:
 #1 - helper function to read data from text files
-import os
 def read_file(filename):
-    if not os.path.exists(filename):
+    try:
+        with open(filename, 'r') as file:
+            return file.readlines()
+    except FileNotFoundError:
         return []
-    with open(filename, 'r') as file:
-        return file.readlines()
 
 #2 - define view shipment/vehicle/driver's current location page
 def get_current_location(vehicle_id=None, driver_id=None, shipment_id=None):
