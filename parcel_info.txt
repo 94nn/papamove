@@ -1,8 +1,0 @@
-D06,Delivered,,23:57,Butterworth
-D03,Picked up,23:57,,Butterworth
-D05,Picked up,23:58,,Butterworth
-D01,In Transit,,,Butterworth
-D04,In Transit,,,Butterworth
-D02,In Transit,,,Butterworth
-D03,Picked up,00:17,,Butterworth
-D05,Picked up,00:18,,Butterworth
