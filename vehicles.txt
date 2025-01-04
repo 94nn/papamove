@@ -1,4 +1,4 @@
-{'vehicle_id': [1], 'maintenance_alerts': ['Oil change and brake check required.'], 'inspection_schedule': ['2024-01-15']}
-{'vehicle_id': [2], 'maintenance_alerts': ['Engine diagnostics needed.'], 'inspection_schedule': ['2024-02-20']}
-{'vehicle_id': [3], 'maintenance_alerts': ['Brake check required.', 'Oil change required.'], 'inspection_schedule': ['2025-01-10', '2025-01-12']}
-{'vehicle_id': [4], 'maintenance_alerts': [], 'inspection_schedule': []}
+{'driver_id': 'ming', 'maintenance_alerts': ['Oil change and brake check required.', 'qwertyuiop', 'asdfghjkl', 'asdfghjkl'], 'inspection_schedule': ['2024-01-15', '2025-01-10', '2025-01-30', '2025-01-30']}
+{'driver_id': 'liwei', 'maintenance_alerts': ['Engine diagnostics needed.'], 'inspection_schedule': ['2024-02-20']}
+{'driver_id': '3', 'maintenance_alerts': ['Brake check required.', 'Oil change required.'], 'inspection_schedule': ['2025-01-10', '2025-01-12']}
+{'driver_id': '4', 'maintenance_alerts': [], 'inspection_schedule': []}

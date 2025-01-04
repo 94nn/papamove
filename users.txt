@@ -1,4 +1,5 @@
-hann,chjann hann,123,customer
-ulwong,wong u lord,123,driver
-hilda,hildani,happy123,admin
-wwy,wan yin,123,driver
+User ID: hann, User Name: chjann hann, Password: 123, User Type: customer
+User ID: Jian Ming, User Name: jianming, Password: 222, User Type: driver
+User ID: Li Wei, User Name: liwei, Password: 333, User Type: driver
+User ID: hilda, User Name: hildani, Password: happy123, User Type: admin
+User ID: Ka Hock, User Name: kahock, Password: 111, User Type: driver
