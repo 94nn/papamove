@@ -1,1 +1,3 @@
-Parcel ID - D02, Parcel Status - Picked up, Pick Up Time - 02:24, Arrival Time - , Current Location - Kuala Lumpur, Driver ID - Jian Ming
+Parcel ID - D04, Parcel Status - Picked up, Pick Up Time - 02:24, Arrival Time - , Current Location - Kuala Lumpur, Driver ID - Jian Ming
+Parcel ID - D05, Parcel Status - Picked up, Pick Up Time - 03:30, Arrival Time - , Current Location - Johor, Driver ID - Li Wei
+Parcel ID - D06, Parcel Status - Picked up, Pick Up Time - 04:00, Arrival Time - , Current Location - Johor, Driver ID - Ka Hock
