@@ -703,9 +703,19 @@ def fuel_management():
 def driver_input_availability(UserID):
     availability_status = input("Enter your availability status (available/not available): ").strip().lower()
 
+    # Read existing records
+    existing_records = []
+    updated = False
+    
+    try:
+        with open("driver_availability.txt", "r") as file:
+            existing_records = file.readlines()
+    except FileNotFoundError:
+        # File doesn't exist yet, will be created when writing
+        pass
+
     if availability_status == "available":
         shipments = read_file("parcel_info.txt") 
-
         task_assigned = False
         print("\n=================== New Task Assigned!!! ===================")
         print(f"{'Shipment ID':<15}{'Origin':<20}{'Destination'}")
@@ -727,15 +737,29 @@ def driver_input_availability(UserID):
         Current_hub = current_hub(UserID)
         print("\n============== Driver availability status has been updated! ==============")
         task_assigned = ""
-    
     else:
         print("Invalid input, try again!")
         driver_input_availability(UserID)
         return
 
-    # Update the driver availability file
-    with open("driver_availability.txt", "a") as file:
-        file.write(f"UserID: {UserID}, Availability Status: {availability_status}, Current Hub: {Current_hub}, Task Assigned: {'yes' if task_assigned else 'no'}\n")
+    # Create new record string
+    new_record = f"UserID: {UserID}, Availability Status: {availability_status}, Current Hub: {Current_hub}, Task Assigned: {'yes' if task_assigned else 'no'}\n"
+
+    # Update existing record or add new one
+    new_records = []
+    for record in existing_records:
+        if f"UserID: {UserID}" in record:
+            new_records.append(new_record)
+            updated = True
+        else:
+            new_records.append(record)
+
+    if not updated:
+        new_records.append(new_record)
+
+    # Write all records back to file
+    with open("driver_availability.txt", "w") as file:
+        file.writelines(new_records)
     
     driver_menu(UserID)
 
