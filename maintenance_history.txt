@@ -1,4 +1,0 @@
-{'vehicle_id': 1, 'maintenance_id': 1, 'maintenance_date': '2023-01-15', 'maintenance_service': 'Oil Change', 'maintenance_cost': 50}
-{'vehicle_id': 1, 'maintenance_id': 2, 'maintenance_date': '2023-03-10', 'maintenance_service': 'Tire Replacement', 'maintenance_cost': 300}
-{'vehicle_id': 4, 'maintenance_id': 3, 'maintenance_date': '2023-05-20', 'maintenance_service': 'Air Filter Replacement', 'maintenance_cost': 20}
-{'vehicle_id': 3, 'maintenance_id': 4, 'maintenance_date': '2023-08-01', 'maintenance_service': 'Brake Inspection', 'maintenance_cost': 80}
