@@ -1188,15 +1188,15 @@ def vehicle_utilization():
     vehicle_utilization_fp = "vehicle_utilization.txt"
     while True:
         try: 
-            view_choice = int(input("\nVehicle Utilization Report\n1. View Weekly Utilization for All Vehicles\n2. View Weekly Utilization by Vehicle ID\n3. Back to Fuel Management Page\nEnter your choice number: "))
+            view_choice = int(input("\nVehicle Utilization Report\n1. View Weekly Utilization for All Vehicles\n2. View Weekly Utilization by Driver ID\n3. Back to Fuel Management Page\nEnter your choice number: "))
             if view_choice == 1:
                 try:
                     #display all vehicles' utilization
                     with open(vehicle_utilization_fp, "r") as file:
                         print("\n--- Vehicle Utilization ---")
                         for line in file:
-                            vehicle_id, distance = line.strip().split(", ")
-                            print(f"Vehicle {vehicle_id}: {distance} km this week")
+                            driver_id, distance = line.strip().split(", ")
+                            print(f"Driver {driver_id}: {distance} km this week")
                         print("----------------------------\n")
                 except FileNotFoundError:
                     print("\nVehicle utilization file not found.")
@@ -1205,14 +1205,14 @@ def vehicle_utilization():
             elif view_choice == 2:
                 #display utilization for a specific vehicle ID
                 try:
-                    vehicle_id_input = input("Enter the Vehicle ID: ").strip()
+                    driver_id_input = input("Enter the Driver ID: ").strip()
                     found = False
                     with open(vehicle_utilization_fp, "r") as file:
                         for line in file:
-                            vehicle_id, distance = line.strip().split(", ")
-                            if vehicle_id == vehicle_id_input:
+                            driver_id, distance = line.strip().split(", ")
+                            if driver_id == driver_id_input:
                                 print(f"\n--- Vehicle Utilization ---")
-                                print(f"Vehicle {vehicle_id}: {distance} km this week")
+                                print(f"Vehicle {driver_id}: {distance} km this week")
                                 print("----------------------------\n")
                                 found = True
                                 break
