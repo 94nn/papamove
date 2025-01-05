@@ -1291,29 +1291,44 @@ def get_current_location(driver_id=None, shipment_id=None):
 #3 - define view driver availability page
 def driver_availability(driver_id):
     print("Driver's Availability Status")
-    #check if the driver is available by checking ongoing assignments & display the driver's schedule
+    # Check if the driver is available by checking ongoing assignments & display the driver's schedule
     drivers = read_file("driver_availability.txt")
+    
+    # Standardize formatting for comparison
+    formatted_driver_id = driver_id.replace(" ", "").lower()
+    
     for driver in drivers:
         driver_data = [part.split(":")[1].strip() for part in driver.strip().split(",")]
-        if driver_data[0] == driver_id:
+        current_driver_id = driver_data[0].replace(" ", "").lower()
+        
+        if current_driver_id == formatted_driver_id:
             availability_status = "Available" if driver_data[1].lower() == "available" else "Not Available"
             print(f"Driver {driver_id} is {availability_status}.\n")
             
-            #now display the driver's schedule in a table format
-            print(f"Driver {driver_id}'s Weekly Schedule:")
-            # print headers
-            print(f"{'Day':<10}{'Dispatched':<20}{'Returned':<20}{'Route'}")
-            print("-" * 60)  #separator line
-            
-            #get the driver's schedule
-            for i in range(2, len(driver_data), 4):
-                dispatched = driver_data[i]
-                returned = driver_data[i+1]
-                route = driver_data[i+2]
-                day = f"Day {int((i-2)/4)+1}"  #generate Day number
-                print(f"{day:<10}{dispatched:<20}{returned:<20}{route}")
-            
-            return availability_status  #end function after printing schedule
+            admin_drivers = read_file("admin_driver_info.txt")
+            for admin_driver in admin_drivers:
+                admin_driver_data = admin_driver.strip().split('|')
+                admin_driver_id = admin_driver_data[0].replace(" ", "").lower()
+                
+                if admin_driver_id == formatted_driver_id:
+                    print("Driver found in admin_driver_info.txt")
+
+                    # Now display the driver's schedule in a table format
+                    print(f"Driver {driver_id}'s Weekly Schedule:")
+                    # Print headers
+                    print(f"{'Day':<10}{'Dispatched':<20}{'Returned':<20}{'Route'}")
+                    print("-" * 60)  # Separator line
+                    
+                    # Get the driver's schedule
+                    for i in range(2, len(admin_driver_data), 3):
+                        dispatched = admin_driver_data[i]
+                        returned = admin_driver_data[i+1]
+                        route = admin_driver_data[i+2]
+                        day = f"Day {int((i-2)/3)+1}"  # Generate Day number
+                        print(f"{day:<10}{dispatched:<20}{returned:<20}{route}")
+                    
+                    return availability_status  # End function after printing schedule
+
     return "Driver not found."
 
 #4 - define view driver's ongoing assignment page
@@ -1361,7 +1376,7 @@ def assign_shipment(driver_id, shipment_id, origin, destination):
     with open(shipments_file, 'w') as file:
         file.writelines(shipments)
     
-    return f"New shipment {shipment_id} has been created and assigned to driver {driver_id}."
+        return f"New shipment {shipment_id} has been created and assigned to driver {driver_id}."
 
 #define *driver management* main page
 def driver_mgmt():
