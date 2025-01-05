@@ -1,2 +1,0 @@
-UserID: ming, Vehicle Plate: 123456, Vehicle Type: Car, Vehicle Status: bad, Service Type: engine, Repair Cost: 200.0, Maintenance Date: 12-12-2024
-UserID: liwei, Vehicle Plate: 1234567, Vehicle Type: Van, Vehicle Status: good, Service Type: No Service Type, Repair Cost: No Repair Cost, Maintenance Date: 12-12-2024

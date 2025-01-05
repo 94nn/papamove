@@ -1182,8 +1182,8 @@ def fuel_consumption():
                     with open(fuel_consumption_fp, "r") as file:
                         print("\n--- Fuel Consumption ---")
                         for line in file:
-                            vehicle_id, current, last_week = line.strip().split(", ")
-                            print(f"Vehicle {vehicle_id}: {current} km/l (Last week: {last_week} km/l)")
+                            driver_id, current, last_week = line.strip().split(", ")
+                            print(f"Vehicle {driver_id}: {current} km/l (Last week: {last_week} km/l)")
                         print("------------------------\n")
                 except FileNotFoundError:
                     print("\nFuel consumption file not found.")
