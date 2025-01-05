@@ -1,4 +1,3 @@
-UserID: Jian Ming, Availability Status: not available, Current Hub: Kuala Lumpur, Task Assigned: 
 UserID: Jian Ming, Availability Status: not available, Current Hub: Butterworth, Task Assigned: no
 UserID: Li Wei, Availability Status: available, Current Hub: , Task Assigned: no
 UserID: Li Wei, Availability Status: available, Current Hub: , Task Assigned: yes
