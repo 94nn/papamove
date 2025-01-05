@@ -439,7 +439,7 @@ def main_menu():
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #============================ Driver ===============================
-def current_hub():
+def current_hub(UserID):
     while True:
         print("\n=============== Locations =================")
         print("1 Johor")
@@ -467,13 +467,13 @@ def current_hub():
             return("Terengganu")
         elif Decision == "exit":
             print("Exiting")
-            driver_menu()
+            driver_menu(UserID)
         else:
             print("Invalid input, try again!")
-            current_hub()
+            current_hub(UserID)
 
 def parcel_status(UserID):
-    Current_location = current_hub()  
+    Current_location = current_hub(UserID)  
 
     Parcel_id = input("Enter parcel ID: ").strip()
     updated_lines = []
@@ -658,7 +658,7 @@ def fuel_management():
     Decision = input("Enter your decision (1/2): ")
     if Decision == "1":
         Vehicle_Type = input("Enter your vehicle type (motor/car/van): ")
-        selected_hub = current_hub()
+        selected_hub = current_hub(UserID)
         fuel_levels = input("Enter your current fuel levels (high/low): ")
         last_refuel_date = input("Enter the date where you last refuel your fuel (DD-MM-YYYY): ")
         if fuel_levels.lower() == "low":
@@ -704,28 +704,39 @@ def driver_input_availability(UserID):
     availability_status = input("Enter your availability status (available/not available): ").strip().lower()
 
     if availability_status == "available":
-        time_schedule = "Sample Time Schedule"  # Placeholder for actual data
-        package_info = "Sample Package Info"    # Placeholder for actual data
-        route = "Sample Route"                  # Placeholder for actual data
-        Current_hub = ""
+        shipments = read_file("parcel_info.txt") 
+
+        task_assigned = False
         print("\n=================== New Task Assigned!!! ===================")
-        print(f"Time Schedule: {time_schedule}")
-        print(f"Package Info: {package_info}")
-        print(f"Route: {route}")
-        print("================================================================")
-        task_assigned = "yes"
+        print(f"{'Shipment ID':<15}{'Origin':<20}{'Destination'}")
+        print("-" * 50)
+
+        # Find tasks for the driver
+        for shipment in shipments:
+            shipment_data = shipment.strip().split('|')
+            if len(shipment_data) >= 4 and shipment_data[3].strip() == UserID:
+                print(f"{shipment_data[0]:<15}{shipment_data[1]:<20}{shipment_data[2]}")
+                task_assigned = True
+
+        if not task_assigned:
+            print("No tasks currently assigned.")
+
+        Current_hub = ""
           
     elif availability_status == "not available":
-        Current_hub = current_hub()
-        task_assigned = ""
+        Current_hub = current_hub(UserID)
         print("\n============== Driver availability status has been updated! ==============")
+        task_assigned = ""
     
     else:
         print("Invalid input, try again!")
-        driver_availability()
+        driver_input_availability(UserID)
+        return
 
+    # Update the driver availability file
     with open("driver_availability.txt", "a") as file:
-        file.write(f"UserID: {UserID}, Availability Status: {availability_status}, Current Hub: {Current_hub}, Task Assigned: {task_assigned}\n")
+        file.write(f"UserID: {UserID}, Availability Status: {availability_status}, Current Hub: {Current_hub}, Task Assigned: {'yes' if task_assigned else 'no'}\n")
+    
     driver_menu(UserID)
 
 def driver_menu(UserID):
@@ -1352,7 +1363,7 @@ def assign_shipment(driver_id, shipment_id, origin, destination):
     #function to assign a shipment to a specific driver by driver ID.
     #check if the driver is available
     availability = driver_availability(driver_id)
-    if "not available" in availability:
+    if "not available" in availability.lower():
         return availability  #cannot assign if the driver is not available
     
     #assign shipment to the driver
@@ -1372,6 +1383,7 @@ def assign_shipment(driver_id, shipment_id, origin, destination):
         file.writelines(shipments)
     
         return f"New shipment {shipment_id} has been created and assigned to driver {driver_id}."
+
 
 #define *driver management* main page
 def driver_mgmt():
