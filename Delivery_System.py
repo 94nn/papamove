@@ -1217,7 +1217,7 @@ def vehicle_utilization():
                                 found = True
                                 break
                     if not found:
-                        print(f"\nNo utilization report found for Vehicle ID: {vehicle_id_input}")
+                        print(f"\nNo utilization report found for Vehicle ID: {driver_id_input}")
                 except FileNotFoundError:
                     print("\nVehicle utilization file not found.")
                 except ValueError:
