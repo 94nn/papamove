@@ -420,7 +420,7 @@ def get_current_location(vehicle_id=None, driver_id=None, shipment_id=None):
     
     if shipment_id:
         #!txt file path get from user parceldetails.txt
-        shipments = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/shipments.txt")
+        shipments = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/parceldetails.txt")
         for shipment in shipments:
             shipment_data = shipment.strip().split(', ')
             shipment_dict = {item.split(': ')[0].strip(): item.split(': ')[1].strip() for item in shipment_data}
@@ -465,7 +465,7 @@ def get_ongoing_assignments(driver_id):
     print("Driver's Ongoing Assignment Tracker")
     #returns a list of ongoing assignments for the given driver ID
     #!txt file path get from user parceldetails.txt
-    shipments = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/shipments.txt")
+    shipments = read_file("C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/parceldetails.txt")
     ongoing_assignments = []
     
     for shipment in shipments:
@@ -481,7 +481,7 @@ def get_ongoing_assignments(driver_id):
 
 #5 - define assign a shipment page
 def assign_shipment(driver_id, shipment_id, origin, destination, vehicle_type, parcel_weight, round_trip, quantity_of_round_trip, vehicle_price, total_price):
-    shipments_file = "C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/shipments.txt"
+    shipments_file = "C:/Users/Dani/OneDrive - Asia Pacific University/Semester 2/Programming with Python/Group Assignment/parceldetails.txt"
     
     #assign shipment to the driver
     shipments = read_file(shipments_file)
